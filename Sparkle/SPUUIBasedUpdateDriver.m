@@ -303,11 +303,23 @@
 - (void)downloadDriverDidReceiveExpectedContentLength:(uint64_t)expectedContentLength
 {
     [_userDriver showDownloadDidReceiveExpectedContentLength:expectedContentLength];
+    
+    id<SPUUpdaterDelegate> updaterDelegate = self->_updaterDelegate;
+    if([updaterDelegate respondsToSelector:@selector(updater:didReceiveExpectedContentLength:)])
+    {
+        [updaterDelegate updater:_updater didReceiveExpectedContentLength:expectedContentLength];
+    }
 }
 
 - (void)downloadDriverDidReceiveDataOfLength:(uint64_t)length
 {
     [_userDriver showDownloadDidReceiveDataOfLength:length];
+    
+    id<SPUUpdaterDelegate> updaterDelegate = self->_updaterDelegate;
+    if([updaterDelegate respondsToSelector:@selector(updater:didReceiveDataOfLength:)])
+    {
+        [updaterDelegate updater:_updater didReceiveDataOfLength:length];
+    }
 }
 
 - (void)coreDriverDidStartExtractingUpdate

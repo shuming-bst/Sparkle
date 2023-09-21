@@ -465,6 +465,11 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
  */
 - (void)updater:(SPUUpdater *)updater didFinishUpdateCycleForUpdateCheck:(SPUUpdateCheck)updateCheck error:(nullable NSError *)error;
 
+
+- (void)updater:(SPUUpdater *)updater didReceiveExpectedContentLength:(uint64_t)expectedContentLength;
+
+- (void)updater:(SPUUpdater *)updater didReceiveDataOfLength:(uint64_t)length;
+
 /* Deprecated methods */
 
 - (BOOL)updaterMayCheckForUpdates:(SPUUpdater *)updater __deprecated_msg("Please use -[SPUUpdaterDelegate updater:mayPerformUpdateCheck:error:] instead.");

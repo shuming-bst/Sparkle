@@ -171,6 +171,63 @@
         progress(8/10.0);
     }
     
+    //copy the new app to installation with replacing
+    // newTempURL.path -> installationURL.path
+    NSFileManager* nfileManager = [NSFileManager defaultManager];
+    NSURL* newBundleURL = newTempURL;
+    NSDirectoryEnumerator* newBundleEnum =
+      [nfileManager enumeratorAtURL:newBundleURL
+                    includingPropertiesForKeys:@[NSURLNameKey, NSURLIsDirectoryKey]
+                    options: 0
+                    errorHandler:nil];
+    NSString* installationBundleName = [installationURL lastPathComponent];
+    NSMutableArray* newFilePaths = [NSMutableArray array];
+    NSMutableArray* installationPaths = [NSMutableArray array];
+    for(NSURL* newFileURL in newBundleEnum)
+    {
+        NSNumber* isDirectory;
+        [newFileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+
+        if(![isDirectory boolValue])
+        {
+          NSString* newFilePath = newFileURL.path;
+          NSRange index = [newFilePath rangeOfString:installationBundleName];
+          if(index.location != NSNotFound)
+          {
+            NSString* installationPath = @"";
+            installationPath = [installationPath stringByAppendingString:[installationURL path]];
+            installationPath = [installationPath stringByAppendingString:[newFilePath substringFromIndex:index.location + index.length]];
+
+            [newFilePaths addObject:newFilePath];
+            [installationPaths addObject:installationPath];
+          }
+        }
+    }
+    if([newFilePaths count] == [installationPaths count])
+    {
+      for(NSUInteger i = 0; i < [newFilePaths count]; i++)
+      {
+        NSString* newFilePath = newFilePaths[i];
+        NSString* installationPath = installationPaths[i];
+        if([nfileManager fileExistsAtPath:installationPath])
+        {
+          [nfileManager removeItemAtPath:installationPath error:nil];
+        }
+        else
+        {
+          NSURL* folderCreation = [[NSURL alloc] initFileURLWithPath:installationPath];
+          folderCreation = [folderCreation URLByDeletingLastPathComponent];
+          [nfileManager createDirectoryAtURL:folderCreation withIntermediateDirectories:YES attributes:nil error:nil];
+        }
+        [nfileManager copyItemAtPath:newFilePath toPath:installationPath error:nil];
+      }
+    }
+    
+    if (progress) {
+        progress(10/10.0);
+    }
+    
+    /*
     // First try swapping the application atomically
     NSError *swapError = nil;
     BOOL swappedApp;
@@ -250,7 +307,7 @@
             
             return NO;
         }
-    }
+    }*/
 
     if (progress) {
         progress(10/10.0);
